@@ -1,0 +1,55 @@
+#!/bin/bash
+
+args=()
+while [[ $# -gt 0 ]]
+do
+    args+=("$1")
+    shift
+done
+
+if echo "${args[@]}" | grep -q "\-help"; then 
+  echo ""
+  echo "Usage ./startMonitoringAgent [args]"
+  echo "    -clean: Delete prev mvn builds and rebuild"
+  echo "    -skip:  Skip tests"
+  echo "    -b:     Only build. Doesn't start the agent"
+  echo ""
+  exit 0
+fi
+
+# Check if clean para is set
+if echo "${args[@]}" | grep -q "\-clean"; then
+  mvn clean
+fi 
+# Check if project is allready build
+if [ ! -d "./target/" ]; then
+  # When skip parameter is set run mvn with DskipTests
+  if echo "${args[@]}" | grep -q "\-skip"; then 
+    mvn package -DskipTests
+  else 
+    mvn package
+  fi
+fi
+
+# When -b is set supposed to only build and not run the agents
+if echo "${args[@]}" | grep -q "\-b"; then 
+  echo "Agents not started"
+  exit 0
+fi
+
+echo ""
+echo "Staring agent"
+
+if ! screen -list | grep -q "monitoringAgent"; then
+  echo "    chariotMonitoringAgent started"
+  screen -S chariotMonitoringAgent -d -m ./target/appassembler/bin/monitoringAgent
+else
+  echo "    The Chariot Monitoring Agent is already running."
+  echo "    Try: screen -r chariotMonitoringAgent"
+fi
+
+# print the running screens after starting the agents
+
+echo ""
+echo "Screens:"
+echo "$(screen -ls)"

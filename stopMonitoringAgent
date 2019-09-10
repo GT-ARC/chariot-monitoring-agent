@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if screen -list | grep -q "chariotMonitoringAgent"; then
+  screen -ls | grep -E "chariotMonitoringAgent" | cut -d. -f1 | awk '{print }' | xargs kill 2> /dev/null
+    echo "Chariot monitoring agent stopped."
+else
+  echo "Chariot monitoring agent isn't running."
+fi
+
