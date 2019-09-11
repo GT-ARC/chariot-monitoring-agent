@@ -7,13 +7,13 @@ import de.dailab.jiactng.agentcore.lifecycle.LifecycleException;
 import org.springframework.context.ApplicationContext;
 
 
-public class DeviceAgentStarter {
+public class MonitoringAgentStarter {
 
     public static void main(String[] args){
 
         // use JIAC's default log4j configuraten
         // System.setProperty("log4j.configuration", "jiactng_log4j.properties");
-        //new ClassPathXmlApplicationContext("Chariot_Device_Monitoring.xml").start();
+        //new ClassPathXmlApplicationContext("ChariotDeviceMonitoringAgentConfig.xml").start();
 
         startNewMonitoringAgent();
 
@@ -21,7 +21,7 @@ public class DeviceAgentStarter {
     }
 
     public static void startNewMonitoringAgent() {
-        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:Chariot_Device_Monitoring.xml", "jiactng_log4j.properties");
+        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ChariotDeviceMonitoringAgentConfig.xml", "jiactng_log4j.properties");
         SimpleAgentNode node = (SimpleAgentNode) context.getBean("MonitoringNode");
         try {
             node.start();
@@ -40,7 +40,7 @@ public class DeviceAgentStarter {
     }
 
     public static IAgent addAgent(final String agentType, final SimpleAgentNode node) {
-        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:Chariot_Device_Monitoring.xml", "jiactng_log4j.properties");
+        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ChariotDeviceMonitoringAgentConfig.xml", "jiactng_log4j.properties");
         IAgent newAgent = (IAgent) context.getBean(agentType);
 
         node.addAgent(newAgent);

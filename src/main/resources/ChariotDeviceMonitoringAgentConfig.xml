@@ -14,7 +14,7 @@
                 <ref bean="MonitoringAgent" />
             </list>
         </property>
-        <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=isco" />
+        <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot" />
     </bean>
 
     <bean name="MonitoringAgent" parent="NonBlockingAgent" scope="prototype">

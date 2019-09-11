@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
+    <import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
+
+    <bean name="DeviceNode" parent="NodeWithJMX" scope="prototype">
+        <property name="agents">
+            <list>
+                <ref bean="ExampleDeviceAgent" />
+            </list>
+        </property>
+        <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot" />
+    </bean>
+
+    <bean name="ExampleDeviceAgent" parent="NonBlockingAgent" scope="prototype">
+        <property name="agentBeans">
+            <list>
+                <ref bean="DeviceAgentBean" />
+            </list>
+        </property>
+    </bean>
+
+
+    <bean name="DeviceAgentBean" class="com.gtarc.chariot.devicebean.ExampleDeviceAgent">
+        <property name="executionInterval" value="1000" />
+        <property name="logLevel" value="info" />
+    </bean>
+
+</beans>

@@ -85,6 +85,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -110,7 +111,11 @@
 							<programs>
 								<program>
 									<name>chariotMonitoringAgent</name>
-									<mainClass>com.gtarc.chariot.monitoring.DeviceAgentStarter</mainClass>
+									<mainClass>com.gtarc.chariot.monitoring.MonitoringAgentStarter</mainClass>
+								</program>
+								<program>
+									<name>exampleDevice</name>
+									<mainClass>com.gtarc.chariot.devicebean.ExampleDeviceAgent</mainClass>
 								</program>
 							</programs>
 						</configuration>

@@ -295,7 +295,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
     private String startNewAgent() throws IOException {
         //Runtime.getRuntime().exec("java -jar ");
 
-        IAgent newAgent = DeviceAgentStarter.addAgent("MonitoringAgent", (SimpleAgentNode) thisAgent.getAgentNode());
+        IAgent newAgent = MonitoringAgentStarter.addAgent("MonitoringAgent", (SimpleAgentNode) thisAgent.getAgentNode());
         return newAgent.getAgentId();
     }
 
@@ -364,7 +364,10 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
         // Get all available actions provider
         List<IActionDescription> actionDescriptons = thisAgent.searchAllActions(new Action(actionNameCheckAvailability));
         ArrayList<String> foundServices = new ArrayList<>();
+
+//        log.info(Arrays.toString(foundServices.toArray()));
         for (IActionDescription action : actionDescriptons) {
+
 
             // Get provider service ID
             String deviceId = action.getProviderDescription().getAid();
@@ -627,6 +630,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
 
             if(db.contains("deviceIdAgentId")) {
                 DeviceIdToAgentIDStoreObject dbObject = db.get(DeviceIdToAgentIDStoreObject.class, "deviceIdAgentId");
+                log.info(dbObject.getDeviceIdToAgentIdMap());
                 dbObject.getDeviceIdToAgentIdMap().putAll(this.dbObject.getDeviceIdToAgentIdMap());
                 try {
                     // Update db agent
@@ -901,7 +905,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
     /* ----- Getter and Setter for xml values ------ */
 
     /**
-     * Setter for the timeout which is set in the Chariot_Device_Monitoring.xml
+     * Setter for the timeout which is set in the ChariotDeviceMonitoringAgentConfig.xml
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;
