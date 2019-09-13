@@ -1,4 +1,4 @@
-package com.gtarc.chariot.utils;
+package com.gtarc.chariot.util;
 
 public class Pair {
     private long key;

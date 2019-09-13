@@ -1,7 +1,6 @@
 package com.gtarc.chariot.monitoring;
 
-import com.gtarc.chariot.monitoring.couchdbobjects.LoadBalancerStore;
-import com.gtarc.chariot.monitoring.couchdbobjects.DeviceIdToAgentIDStoreObject;
+import com.gtarc.chariot.util.HttpClient;
 import de.dailab.jiactng.agentcore.IAgent;
 import de.dailab.jiactng.agentcore.SimpleAgentNode;
 import de.dailab.jiactng.agentcore.action.AbstractMethodExposingBean;
@@ -15,11 +14,7 @@ import de.dailab.jiactng.agentcore.ontology.AgentDescription;
 import de.dailab.jiactng.agentcore.ontology.IActionDescription;
 
 import de.dailab.jiactng.agentcore.ontology.IAgentDescription;
-import org.ektorp.*;
-import org.ektorp.http.HttpClient;
-import org.ektorp.http.StdHttpClient;
-import org.ektorp.impl.StdCouchDbConnector;
-import org.ektorp.impl.StdCouchDbInstance;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,7 +45,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
     // List of Device-Agent ids which are not send to the current loadbalancer
     private ArrayList<String> timeOutSendFailed = new ArrayList<>();
 
-    private static final String actionNameCheckAvailability = "com.gtarc.chariot.DeviceMonitoringExposingBean#checkAvailability";
+    private static final String actionNameGetDeviceID = "com.gtarc.chariot.DeviceMonitoringExposingBean#getDeviceID";
 
     // Loadbalancer stuff END
 
@@ -67,13 +62,12 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
 
     private HashMap<String, Long> monitoringAgentTimeout;          // Map that stores agentTimeouts
     private ArrayList<String> timeoutedServices;
-    private HashMap<String, Long> rttMap;
-    private CouchDbConnector db;        // Holds the db connection
 
     private int timeout;                // ServiceTimeout
     private int availabilityInterval;
 
-    private DeviceIdToAgentIDStoreObject dbObject = new DeviceIdToAgentIDStoreObject();
+    private DeviceIDAgentIDMap mapper = new DeviceIDAgentIDMap();
+    private HttpClient httpClient = new HttpClient();
 
     /**
      * Init monitoring-Bean and init DB connection.
@@ -88,56 +82,26 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
         log.info("DeviceAgentBean - my Name: " + this.thisAgent.getAgentName());
         log.info("DeviceAgentBean - my Node: " + this.thisAgent.getAgentNode().getName());
 
-        Properties prop = new Properties();
-        FileInputStream inputStream = null;
-        if(new File("src/main/resources/couchdb.properties").exists())
-            inputStream = new FileInputStream("src/main/resources/couchdb.properties");
-        else if(new File("couchdb.properties").exists())
-            inputStream = new FileInputStream("couchdb.properties");
-
-        if(inputStream == null){
-            log.error("Couldn't find couchDB properties");
-            exit(1);
-        }
-        prop.load(inputStream);
-
         // Init Hashmaps
         this.monitoringAgentDeviceMap = new HashMap<>();
         this.monitoringAgentTimeout = new HashMap<>();
         this.deviceAgentTimeout = new HashMap<>();
-        this.rttMap = new HashMap<>();
         this.timeoutedServices = new ArrayList<>();
         this.deviceList = new HashMap<>();
 
-        // Init CouchDB Connection and create Database if not exists
-        String url = prop.getProperty("couchdb.protocol") + "://" + prop.getProperty("couchdb.host") + ":" + prop.getProperty("couchdb.port");
-        HttpClient httpClient = new StdHttpClient.Builder().url(url)
-                .username(prop.getProperty("couchdb.username"))
-                .password(prop.getProperty("couchdb.password")).build();
-        CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-        db = new StdCouchDbConnector(prop.getProperty("couchdb.name"), dbInstance);
-        if(prop.getProperty("couchdb.createdb.if-not-exist").equals("true")){
-            db.createDatabaseIfNotExists();
-        }
-        else if(dbInstance.checkIfDbExists(prop.getProperty("couchdb.name"))){
-            throw new Exception("Database not available and not allowed to create new one.");
+        httpClient.establishConnection();
+
+        JSONObject dataBaseState = httpClient.getAllMappings();
+        if (dataBaseState.containsKey("loadBalancer")) {
+           long dbLoadbalancer = (long) dataBaseState.get("loadBalancer");
+           if(new Date().getTime() - dbLoadbalancer > this.getExecutionInterval() * 3)
+               this.isLoadBalancer = true;
+        } else {
+            this.isLoadBalancer = true;
+            httpClient.updateLoadBalancer();
         }
 
-        // Check if Monitoring Agent is first one started via DB timestamp
-        if (db.contains(loadBalancerDocID)) {
-            LoadBalancerStore storingObject = db.get(LoadBalancerStore.class, loadBalancerDocID);
-            Long firstStartTimeStamp = storingObject.getTimeStamp();
-            Long currentTime = new Date().getTime();
-            if (currentTime - firstStartTimeStamp > this.getExecutionInterval() * 2) {
-                this.isLoadBalancer = true;
-                storingObject.setTimeStamp(currentTime);
-                db.update(storingObject);
-            }
-        } else {
-            LoadBalancerStore storingObject = new LoadBalancerStore(new Date().getTime());
-            this.db.create(loadBalancerDocID, storingObject);
-            this.isLoadBalancer = true;
-        }
+        // TODO write db mapper stuff
 
         log.info("MonitoringAgentBean - is load balancer: " + this.isLoadBalancer);
     }
@@ -153,7 +117,8 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
                 if (this.isLoadBalancer) {
                     this.loadBalancerAgentID = thisAgent.getAgentId();
                     this.state = States.RUNNING;
-                } else {
+                }
+                else {
                     // check if all ready received answer of current loadbalancer if so search for Agents
                     if (this.receivedMonitoringAgentAmount == -1) {
 
@@ -238,8 +203,8 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
 
                 // do loadbalancer stuff
                 if (this.isLoadBalancer) {
-                    int serviceAmount = thisAgent.searchAllActions(new Action(actionNameCheckAvailability)).size();
-                    setNewLoadbalancerTimestamp();
+                    int serviceAmount = thisAgent.searchAllActions(new Action(actionNameGetDeviceID)).size();
+                    httpClient.updateLoadBalancer();
 
                     String printString = "Agent amount: " + this.agentAmount + " Service amount: " + serviceAmount;
                     if (lastPrint.isEmpty() || !lastPrint.equals(printString)) {
@@ -362,29 +327,27 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
      */
     private void receiveNewDevices() {
         // Get all available actions provider
-        List<IActionDescription> actionDescriptons = thisAgent.searchAllActions(new Action(actionNameCheckAvailability));
+        List<IActionDescription> actionDescriptons = thisAgent.searchAllActions(new Action(actionNameGetDeviceID));
         ArrayList<String> foundServices = new ArrayList<>();
 
-//        log.info(Arrays.toString(foundServices.toArray()));
         for (IActionDescription action : actionDescriptons) {
 
-
             // Get provider service ID
-            String deviceId = action.getProviderDescription().getAid();
-            foundServices.add(deviceId);
+            String deviceAgentID = action.getProviderDescription().getAid();
+            foundServices.add(deviceAgentID);
             // Check if agent is timeouted and if continue (it takes time until a timeouted service isn't visible anymore)
-            if(this.timeoutedServices.contains(deviceId))
+            if(this.timeoutedServices.contains(deviceAgentID))
                 continue;
 
-            if (!this.deviceList.containsKey(deviceId) && this.deviceList.size() < this.servicesPerAgent
-                    && !this.checkIfServiceIsMonitored(deviceId)) {
+            if (!this.deviceList.containsKey(deviceAgentID) && this.deviceList.size() < this.servicesPerAgent
+                    && !this.checkIfServiceIsMonitored(deviceAgentID)) {
 
                 // Create new local service entry and send other agents the new service monitored
-                Long currentTimeMillis = new Date().getTime();
-                this.deviceList.put(deviceId, action);
-                sendAlteredMonitoredService(false, deviceId);
+                mapper.updateAvailability(deviceAgentID);
+                this.deviceList.put(deviceAgentID, action);
+                sendAlteredMonitoredService(false, deviceAgentID);
                 removeState(action);
-                log.info("Monitoring-Agent - added new Device: " + deviceId + " monitoring " + this.deviceList.size() + " devices. ");
+                log.info("Monitoring-Agent - added new Device: " + deviceAgentID + " monitoring " + this.deviceList.size() + " devices. ");
 
                 // Invoke action with serviceID and this object as callback
                 invoke(action, null, this);
@@ -426,10 +389,13 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
      * Invoke the saved monitoring actions in each saved service obj
      */
     private void invokeAvailabilityAction() {
-        // Iterate through services in local service map
-        for(Map.Entry<String, IActionDescription> localMonitoredService : deviceList.entrySet()){
-            removeState(localMonitoredService.getValue());
-            invoke(localMonitoredService.getValue(), null, this);
+        // Iterate through devices in local device map
+        for(Map.Entry<String, IActionDescription> localMonitoredDevice : deviceList.entrySet()){
+            if ( System.currentTimeMillis() - mapper.getLastAvailability(localMonitoredDevice.getKey()) > availabilityInterval ) {
+                mapper.updateAvailability(localMonitoredDevice.getKey());
+                removeState(localMonitoredDevice.getValue());
+                invoke(localMonitoredDevice.getValue(), null, this);
+            }
         }
     }
 
@@ -442,17 +408,15 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
         for (Map.Entry<String, Long> elements : deviceAgentTimeout.entrySet()) {
             long currentTimeMillis = System.currentTimeMillis();
             // Check if agent is currently available
-            //System.out.println(serviceObject.getServiceID() + ": " + serviceObject.isAvailable() + " - " +serviceObject.getCurrentTimeStamp());
             if (currentTimeMillis - elements.getValue() > this.timeout) {
 
                 log.info("Service timeout detected: " + elements.getKey());
-
+                mapper.removeMapping(elements.getKey());
                 this.timeoutedServices.add(elements.getKey());
 
                 // mark service to be deleted
                 toBeDeleted.add(elements.getKey());
 
-                storeInDatabase();
             }
         }
 
@@ -616,51 +580,6 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
     }
 
     /**
-     * Function that stores new or updated in Database
-     */
-    private synchronized void storeInDatabase() {
-        // Check for db integrity
-        if (db != null) {
-
-            if(this.compactTimer == 50){
-                db.compact();
-                compactTimer = 0;
-            } else
-                compactTimer++;
-
-            if(db.contains("deviceIdAgentId")) {
-                DeviceIdToAgentIDStoreObject dbObject = db.get(DeviceIdToAgentIDStoreObject.class, "deviceIdAgentId");
-                log.info(dbObject.getDeviceIdToAgentIdMap());
-                dbObject.getDeviceIdToAgentIdMap().putAll(this.dbObject.getDeviceIdToAgentIdMap());
-                try {
-                    // Update db agent
-                    db.update(dbObject);
-                } catch (org.ektorp.UpdateConflictException e) {
-                    return;
-                }
-            } else {
-                // Create new agent storing object
-                db.create("deviceIdAgentId", dbObject);
-            }
-        }
-    }
-
-
-    /**
-     * Renewed the loadbalancer timestamp
-     */
-    private void setNewLoadbalancerTimestamp() {
-        // Check if doc is in DB
-        if (db.contains(loadBalancerDocID)) {
-            LoadBalancerStore storingObject = db.get(LoadBalancerStore.class, loadBalancerDocID);
-            storingObject.setTimeStamp(System.currentTimeMillis());
-            try {
-                db.update(storingObject);
-            } catch (UpdateConflictException e) {}
-        }
-    }
-
-    /**
      * Sends the new amount of running monitoring agents to all other monitoring agents
      * @param agentAmount the to be send agent amount
      */
@@ -716,14 +635,16 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
             }
             // Check if respond is from right action and results are correctly
             else {
-                // Check if service is in seriveMap and if returend action is in its monitored Actions
+                // Check if device is in id map
                 String deviceAgentID = actionResult.getAction().getProviderDescription().getAid();
                 String actionName = actionResult.getAction().getName();
 
-                if(deviceList.containsKey(deviceAgentID) && actionName.equals(actionNameCheckAvailability)){
+                if(deviceList.containsKey(deviceAgentID) && actionName.equals(actionNameGetDeviceID)) {
                     long currentTimeStamp = System.currentTimeMillis();
                     deviceAgentTimeout.put(deviceAgentID, currentTimeStamp);
-                    storeInDatabase();
+
+                    String deviceID = (String) actionResult.getResults()[0];
+                    mapper.addNewMapping(deviceAgentID, deviceID);
                 }
             }
         }
