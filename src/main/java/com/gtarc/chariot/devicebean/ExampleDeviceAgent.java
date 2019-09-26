@@ -13,7 +13,7 @@ public class ExampleDeviceAgent extends DeviceMonitoringExposingBean {
         log.info("Example Device Agent started - " + thisAgent.getAgentId());
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         startNewDeviceAgent();
     }
 

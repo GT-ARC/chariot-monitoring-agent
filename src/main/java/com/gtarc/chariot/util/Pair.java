@@ -4,7 +4,8 @@ public class Pair {
     private long key;
     private Object value;
 
-    public Pair() {}
+    public Pair() {
+    }
 
     public Pair(long key, Object value) {
         this.key = key;

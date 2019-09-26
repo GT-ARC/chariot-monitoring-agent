@@ -3,13 +3,12 @@ package com.gtarc.chariot.monitoring;
 import de.dailab.jiactng.agentcore.IAgent;
 import de.dailab.jiactng.agentcore.SimpleAgentNode;
 import de.dailab.jiactng.agentcore.lifecycle.LifecycleException;
-
 import org.springframework.context.ApplicationContext;
 
 
 public class MonitoringAgentStarter {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         // use JIAC's default log4j configuraten
         // System.setProperty("log4j.configuration", "jiactng_log4j.properties");
