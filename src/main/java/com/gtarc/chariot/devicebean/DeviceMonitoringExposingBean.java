@@ -19,6 +19,8 @@ public class DeviceMonitoringExposingBean extends AbstractMethodExposingBean {
     private static final String DATA_FOR_RANDOM_STRING = CHAR_LOWER + CHAR_UPPER + NUMBER;
     private static SecureRandom random = new SecureRandom();
 
+    private static final String PROPERTY_ACTION = "com.gtarc.chariot.receive_property_action";
+
     public static final String ACTION_GET_DEVICE_ID
             = "com.gtarc.chariot.DeviceMonitoringExposingBean#getDeviceID";
 
@@ -32,6 +34,10 @@ public class DeviceMonitoringExposingBean extends AbstractMethodExposingBean {
         return deviceID;
     }
 
+    @Expose(name = PROPERTY_ACTION, scope = ActionScope.GLOBAL)
+    public void receiveChangedProperty(String json) {
+        System.out.println("Received updated json: " + json);
+    }
 
     public static String generateRandomString(int length) {
         if (length < 1) throw new IllegalArgumentException();

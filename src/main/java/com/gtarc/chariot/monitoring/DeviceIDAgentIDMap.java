@@ -18,7 +18,7 @@ public class DeviceIDAgentIDMap {
         if (!deviceIDtoAgentIDMap.containsKey(agentID)) {
             this.deviceIDtoAgentIDMap.put(agentID, deviceID);
             try {
-                String updateURL = httpClient.addNewDevice(agentID, deviceID);
+                String updateURL = httpClient.addNewDevice(deviceID, agentID);
                 agentIDtoKMSUrl.put(agentID, updateURL);
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
