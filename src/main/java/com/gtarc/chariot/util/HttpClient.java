@@ -29,12 +29,15 @@ public class HttpClient {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if (response.code() == 404) {
+            JSONParser parser = new JSONParser();
+
+            String body = response.body().string();
+            if (response.code() == 404 || body.equals("[]")) {
                 pushInitialData();
                 establishConnection();
             } else {
-                JSONParser parser = new JSONParser();
-                Object receivedO = parser.parse(response.body().string());
+
+                Object receivedO = parser.parse(body);
 
                 JSONObject monService;
 
@@ -46,15 +49,6 @@ public class HttpClient {
 
                 JSONObject mapping = ((JSONObject) monService.get("agentlist"));
                 mappingsURL = (String) mapping.get("url");
-                JSONArray jsonArray = (JSONArray) mapping.get("mapping");
-                jsonArray.forEach(o -> {
-                    try {
-                        removeDevice((String) ((JSONObject) o).get("url"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -75,11 +69,11 @@ public class HttpClient {
         RequestBody body = RequestBody.create(JSON, obj.toJSONString());
 
         Request request = new Request.Builder()
-                .url(currentUrl + postfix)
-                .put(body)
+                .url(startUrl + postfix)
+                .post(body)
                 .build();
 
-        client.newCall(request).execute();
+        client.newCall(request).execute().close();
     }
 
     /**
@@ -96,7 +90,7 @@ public class HttpClient {
                 .put(body)
                 .build();
         try {
-            client.newCall(request).execute();
+            client.newCall(request).execute().close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -130,6 +124,7 @@ public class HttpClient {
                 .build();
 
         JSONParser parser = new JSONParser();
+        String retUrl = null;
         try (Response response = client.newCall(request).execute()) {
 
             JSONObject jsonObject = (JSONObject) parser.parse(response.body().string());
@@ -137,19 +132,46 @@ public class HttpClient {
             JSONArray recMappings = (JSONArray) jsonObject.get("mappings");
             for (Object recMaps : recMappings) {
                 JSONObject recMap = (JSONObject) recMaps;
-                if (recMap.get("agent_id").toString().equals(agentID))
-                    return recMap.get("url").toString();
+                if (recMap.get("agent_id").toString().equals(agentID)) {
+                    retUrl = recMap.get("url").toString();
+                    break;
+                }
             }
-            return null;
+        }
+        return retUrl;
+    }
+
+    public void removeAllDevices() {
+        Request request = new Request.Builder()
+                .url(mappingsURL)
+                .get()
+                .build();
+
+        JSONParser parser = new JSONParser();
+        try (Response response = client.newCall(request).execute()) {
+
+            JSONObject mapping = (JSONObject) parser.parse(response.body().string());
+            JSONArray jsonArray = (JSONArray) mapping.get("mappings");
+            jsonArray.forEach(o -> {
+                try {
+                    removeDevice((String) ((JSONObject) o).get("url"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
         }
     }
 
     public String removeDevice(String deviceUrl) throws IOException {
         Request request = new Request.Builder()
                 .url(deviceUrl).delete().build();
+        String responseString;
         try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
+            responseString = response.body().string();
         }
+        return responseString;
     }
 
     public JSONObject getAllMappings() throws IOException, ParseException {
@@ -158,9 +180,11 @@ public class HttpClient {
                 .get()
                 .build();
         JSONParser parser = new JSONParser();
+        JSONObject receivedObj;
         try (Response response = client.newCall(request).execute()) {
-            return (JSONObject) parser.parse(response.body().string());
+             receivedObj = (JSONObject) parser.parse(response.body().string());
         }
+        return receivedObj;
     }
 
     public static void setLoadbalancerUrl(String loadbalancerUrl) {

@@ -28,7 +28,7 @@
 
     <bean name="MonitoringAgentBean" class="com.gtarc.chariot.monitoring.DeviceMonitoringAgent">
         <property name="executionInterval" value="1000" />
-        <property name="servicesPerAgent" value="5"/>
+        <property name="servicesPerAgent" value="2"/>
         <property name="availabilityInterval" value="4000"/>
         <property name="timeout" value="8000" />
         <property name="deviceMonitoringStartResponseTimeout" value="20000"/>

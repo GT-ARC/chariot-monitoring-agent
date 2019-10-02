@@ -27,7 +27,7 @@ public class DeviceIDAgentIDMap {
     }
 
     public void removeMapping(String agentID) {
-        if (!deviceIDtoAgentIDMap.containsKey(agentID)) {
+        if (deviceIDtoAgentIDMap.containsKey(agentID)) {
             try {
                 httpClient.removeDevice(agentIDtoKMSUrl.get(agentID));
             } catch (IOException e) {

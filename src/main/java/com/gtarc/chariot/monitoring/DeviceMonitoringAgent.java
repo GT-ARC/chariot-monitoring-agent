@@ -93,6 +93,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
             if (new Date().getTime() - dbLoadbalancer > this.getExecutionInterval() * 3) {
                 this.isLoadBalancer = true;
                 httpClient.updateLoadBalancer();
+                httpClient.removeAllDevices();
             }
         } else {
             this.isLoadBalancer = true;
@@ -422,6 +423,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
         // Delete the object from the Hashmap
         for (String deletableObject : toBeDeleted) {
             this.deviceList.remove(deletableObject);
+            this.deviceAgentTimeout.remove(deletableObject);
         }
 
         // Check if there are monitored services left
