@@ -40,9 +40,9 @@ fi
 echo ""
 echo "Staring agent"
 
-if ! screen -list | grep -q "monitoringAgent"; then
+if ! screen -list | grep -q "chariotMonitoringAgent"; then
   echo "    chariotMonitoringAgent started"
-  screen -S chariotMonitoringAgent -d -m ./target/appassembler/bin/monitoringAgent
+  screen -S chariotMonitoringAgent -d -m ./target/appassembler/bin/chariotMonitoringAgent
 else
   echo "    The Chariot Monitoring Agent is already running."
   echo "    Try: screen -r chariotMonitoringAgent"
