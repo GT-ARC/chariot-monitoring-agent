@@ -46,4 +46,8 @@ public class DeviceIDAgentIDMap {
     public long getLastAvailability(String agentID) {
         return this.lastDeviceAvailability.get(agentID);
     }
+
+    public String getDeviceID(String agentID) {
+        return this.deviceIDtoAgentIDMap.get(agentID);
+    }
 }

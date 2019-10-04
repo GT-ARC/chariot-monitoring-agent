@@ -411,6 +411,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
             if (currentTimeMillis - elements.getValue() > this.timeout) {
 
                 log.info("Service timeout detected: " + elements.getKey());
+                sendUpdateToProxyAgent(elements.getKey(), mapper.getDeviceID(elements.getKey()), true);
                 mapper.removeMapping(elements.getKey());
                 this.timeoutedServices.add(elements.getKey());
 
@@ -651,9 +652,24 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
                     deviceAgentTimeout.put(deviceAgentID, currentTimeStamp);
 
                     String deviceID = (String) actionResult.getResults()[0];
+                    if (mapper.getDeviceID(deviceAgentID) == null) {
+                        sendUpdateToProxyAgent(deviceAgentID, deviceID, false);
+                    }
                     mapper.addNewMapping(deviceAgentID, deviceID);
+
                 }
             }
+        }
+    }
+
+    private static final String ADD_AGENT_ACTION = "com.gtarc.chariot.proxyagent#addAgent";
+    private static final String REMOVE_AGENT_ACTION = "com.gtarc.chariot.proxyagent#removeAgent";
+
+    private void sendUpdateToProxyAgent(String deviceAgentID, String deviceID, boolean remove) {
+        IActionDescription proxyAgentAction = thisAgent.searchAction(
+                new Action(remove ? REMOVE_AGENT_ACTION : ADD_AGENT_ACTION));
+        if (proxyAgentAction != null) {
+            invoke(proxyAgentAction, new Serializable[]{deviceAgentID, deviceID});
         }
     }
 
