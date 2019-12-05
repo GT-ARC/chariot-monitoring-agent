@@ -14,7 +14,7 @@ public class HttpClient {
     private static String currentUrl = "";
     private static String loadbalancerUrl = "";
     private static String mappingsURL = "";
-    private static final String startUrl = "http://chariot-km.dai-lab.de:8001/monitoringservice/";
+    private static final String startUrl = "http://chariot-km.dai-lab.de:81/monitoringservice/";
     private static final String postfix = "?format=json";
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
