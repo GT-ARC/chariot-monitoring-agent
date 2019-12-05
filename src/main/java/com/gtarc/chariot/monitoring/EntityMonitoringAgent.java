@@ -656,7 +656,6 @@ public class EntityMonitoringAgent extends AbstractMethodExposingBean implements
                         sendUpdateToProxyAgent(deviceAgentID, deviceID, false);
                     }
                     mapper.addNewMapping(deviceAgentID, deviceID);
-
                 }
             }
         }
