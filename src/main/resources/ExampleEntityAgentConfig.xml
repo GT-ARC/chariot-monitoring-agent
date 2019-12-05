@@ -5,8 +5,9 @@
 
     <import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
     <import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
+    <import resource="classpath:GatewayConfig.xml" />
 
-    <bean name="DeviceNode" parent="NodeWithJMX" scope="prototype">
+    <bean name="DeviceNode" parent="GatewayNode" scope="prototype">
         <property name="agentNodeBeans">
             <list>
                 <ref bean="ChariotStaticGatewayBroker" />
