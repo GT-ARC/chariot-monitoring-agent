@@ -26,7 +26,7 @@
     </bean>
 
 
-    <bean name="DeviceAgentBean" class="com.gtarc.chariot.devicebean.ExampleDeviceAgent">
+    <bean name="DeviceAgentBean" class="com.gtarc.chariot.devicebean.ExampleEntityAgent">
         <property name="executionInterval" value="1000" />
         <property name="logLevel" value="info" />
     </bean>

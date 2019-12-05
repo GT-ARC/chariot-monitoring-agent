@@ -120,7 +120,7 @@
 								</program>
 								<program>
 									<name>exampleDevice</name>
-									<mainClass>com.gtarc.chariot.devicebean.ExampleDeviceAgent</mainClass>
+									<mainClass>com.gtarc.chariot.devicebean.ExampleEntityAgent</mainClass>
 								</program>
 							</programs>
 						</configuration>

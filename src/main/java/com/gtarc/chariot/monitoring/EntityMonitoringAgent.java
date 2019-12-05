@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
-public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements ResultReceiver {
+public class EntityMonitoringAgent extends AbstractMethodExposingBean implements ResultReceiver {
 
     // Loadbalancer stuff START
     private static final String loadBalancerDocID = "loadBalancerDocID"; // The couchDB document id to check for loadbalancer status
@@ -62,7 +62,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
     private int timeout;                // ServiceTimeout
     private int availabilityInterval;
 
-    private DeviceIDAgentIDMap mapper = new DeviceIDAgentIDMap();
+    private EntityIDAgentIDMap mapper = new EntityIDAgentIDMap();
     private HttpClient httpClient = new HttpClient();
 
     /**
@@ -93,7 +93,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
             if (new Date().getTime() - dbLoadbalancer > this.getExecutionInterval() * 3) {
                 this.isLoadBalancer = true;
                 httpClient.updateLoadBalancer();
-                httpClient.removeAllDevices();
+                httpClient.removeAllEntities();
             }
         } else {
             this.isLoadBalancer = true;
@@ -858,7 +858,7 @@ public class DeviceMonitoringAgent extends AbstractMethodExposingBean implements
     /* ----- Getter and Setter for xml values ------ */
 
     /**
-     * Setter for the timeout which is set in the ChariotDeviceMonitoringAgentConfig.xml
+     * Setter for the timeout which is set in the ChariotEntityMonitoringAgentConfig.xml
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;

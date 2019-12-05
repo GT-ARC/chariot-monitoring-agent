@@ -12,7 +12,7 @@ public class MonitoringAgentStarter {
 
         // use JIAC's default log4j configuraten
         // System.setProperty("log4j.configuration", "jiactng_log4j.properties");
-        //new ClassPathXmlApplicationContext("ChariotDeviceMonitoringAgentConfig.xml").start();
+        //new ClassPathXmlApplicationContext("ChariotEntityMonitoringAgentConfig.xml").start();
 
         startNewMonitoringAgent();
 
@@ -20,7 +20,7 @@ public class MonitoringAgentStarter {
     }
 
     public static void startNewMonitoringAgent() {
-        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ChariotDeviceMonitoringAgentConfig.xml", "jiactng_log4j.properties");
+        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ChariotEntityMonitoringAgentConfig.xml", "jiactng_log4j.properties");
         SimpleAgentNode node = (SimpleAgentNode) context.getBean("MonitoringNode");
         try {
             node.start();
@@ -39,7 +39,7 @@ public class MonitoringAgentStarter {
     }
 
     public static IAgent addAgent(final String agentType, final SimpleAgentNode node) {
-        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ChariotDeviceMonitoringAgentConfig.xml", "jiactng_log4j.properties");
+        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ChariotEntityMonitoringAgentConfig.xml", "jiactng_log4j.properties");
         IAgent newAgent = (IAgent) context.getBean(agentType);
 
         node.addAgent(newAgent);

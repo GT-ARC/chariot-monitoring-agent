@@ -4,7 +4,7 @@ import de.dailab.jiactng.agentcore.SimpleAgentNode;
 import de.dailab.jiactng.agentcore.lifecycle.LifecycleException;
 import org.springframework.context.ApplicationContext;
 
-public class ExampleDeviceAgent extends DeviceMonitoringExposingBean {
+public class ExampleEntityAgent extends EntityMonitoringExposingBean {
 
     @Override
     public void doStart() throws Exception {
@@ -14,11 +14,11 @@ public class ExampleDeviceAgent extends DeviceMonitoringExposingBean {
     }
 
     public static void main(String[] args) {
-        startNewDeviceAgent();
+        startNewEntityAgent();
     }
 
-    private static void startNewDeviceAgent() {
-        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ExampleDeviceAgentConfig.xml", "jiactng_log4j.properties");
+    private static void startNewEntityAgent() {
+        ApplicationContext context = SimpleAgentNode.startAgentNode("classpath:ExampleEntityAgentConfig.xml", "jiactng_log4j.properties");
         SimpleAgentNode node = (SimpleAgentNode) context.getBean("DeviceNode");
         try {
             node.start();

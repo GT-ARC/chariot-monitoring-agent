@@ -6,7 +6,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class DeviceIDAgentIDMap {
+public class EntityIDAgentIDMap {
 
     private HashMap<String, String> deviceIDtoAgentIDMap = new HashMap<>();
     private HashMap<String, String> agentIDtoKMSUrl = new HashMap<>();
@@ -18,7 +18,7 @@ public class DeviceIDAgentIDMap {
         if (!deviceIDtoAgentIDMap.containsKey(agentID)) {
             this.deviceIDtoAgentIDMap.put(agentID, deviceID);
             try {
-                String updateURL = httpClient.addNewDevice(deviceID, agentID);
+                String updateURL = httpClient.addNewEntity(deviceID, agentID);
                 agentIDtoKMSUrl.put(agentID, updateURL);
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
@@ -29,7 +29,7 @@ public class DeviceIDAgentIDMap {
     public void removeMapping(String agentID) {
         if (deviceIDtoAgentIDMap.containsKey(agentID)) {
             try {
-                httpClient.removeDevice(agentIDtoKMSUrl.get(agentID));
+                httpClient.removeEntity(agentIDtoKMSUrl.get(agentID));
             } catch (IOException e) {
                 e.printStackTrace();
             }

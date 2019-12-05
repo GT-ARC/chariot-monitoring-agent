@@ -26,7 +26,7 @@
     </bean>
 
 
-    <bean name="MonitoringAgentBean" class="com.gtarc.chariot.monitoring.DeviceMonitoringAgent">
+    <bean name="MonitoringAgentBean" class="com.gtarc.chariot.monitoring.EntityMonitoringAgent">
         <property name="executionInterval" value="1000" />
         <property name="servicesPerAgent" value="2"/>
         <property name="availabilityInterval" value="4000"/>

@@ -97,16 +97,16 @@ public class HttpClient {
     }
 
     /**
-     * Adds a new device into the device list in the kms
+     * Adds a new entity into the entity list in the kms
      *
-     * @param deviceID the device id of the device agent
+     * @param entityID the entity id of the entity agent
      * @param agentID  the agent id
      * @return The url of the new entry
      * @throws IOException
      */
-    public String addNewDevice(String deviceID, String agentID) throws IOException, ParseException {
+    public String addNewEntity(String entityID, String agentID) throws IOException, ParseException {
         JSONObject mapObj = new JSONObject();
-        mapObj.put("device_id", deviceID);
+        mapObj.put("device_id", entityID);
         mapObj.put("agent_id", agentID);
 
         JSONArray mappings = new JSONArray();
@@ -141,7 +141,7 @@ public class HttpClient {
         return retUrl;
     }
 
-    public void removeAllDevices() {
+    public void removeAllEntities() {
         Request request = new Request.Builder()
                 .url(mappingsURL)
                 .get()
@@ -154,7 +154,7 @@ public class HttpClient {
             JSONArray jsonArray = (JSONArray) mapping.get("mappings");
             jsonArray.forEach(o -> {
                 try {
-                    removeDevice((String) ((JSONObject) o).get("url"));
+                    removeEntity((String) ((JSONObject) o).get("url"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -164,7 +164,7 @@ public class HttpClient {
         }
     }
 
-    public String removeDevice(String deviceUrl) throws IOException {
+    public String removeEntity(String deviceUrl) throws IOException {
         Request request = new Request.Builder()
                 .url(deviceUrl).delete().build();
         String responseString;
