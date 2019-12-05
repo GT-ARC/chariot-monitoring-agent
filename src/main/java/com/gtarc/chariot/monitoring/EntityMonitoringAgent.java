@@ -40,7 +40,7 @@ public class EntityMonitoringAgent extends AbstractMethodExposingBean implements
     // List of Device-Agent ids which are not send to the current loadbalancer
     private ArrayList<String> timeOutSendFailed = new ArrayList<>();
 
-    private static final String actionNameGetDeviceID = "com.gtarc.chariot.DeviceMonitoringExposingBean#getDeviceID";
+    private static final String actionNameGetDeviceID = "com.gtarc.chariot.DeviceMonitoringExposingBean#getEntityID";
 
     // Loadbalancer stuff END
 
