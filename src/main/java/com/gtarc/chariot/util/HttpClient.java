@@ -22,7 +22,7 @@ public class HttpClient {
 
     private OkHttpClient client = new OkHttpClient();
 
-    public void establishConnection() {
+    public void establishConnection() throws Exception {
         Request request = new Request.Builder()
                 .url(startUrl + postfix)
                 .get()
@@ -30,19 +30,18 @@ public class HttpClient {
 
         try (Response response = client.newCall(request).execute()) {
             JSONParser parser = new JSONParser();
+            Object receivedO = parser.parse(response.body().string());
+            if (!(receivedO instanceof JSONArray))
+                throw new Exception("KMS didn't answered json array");
 
-            String body = response.body().string();
-            if (response.code() == 404 || body.equals("[]")) {
+            JSONArray receivedArray = (JSONArray) receivedO;
+            if (response.code() == 404 || receivedArray.size() == 0) {
                 pushInitialData();
                 establishConnection();
             } else {
 
-                Object receivedO = parser.parse(body);
 
-                JSONObject monService;
-
-                if (receivedO instanceof JSONArray) monService = ((JSONObject) ((JSONArray) receivedO).get(0));
-                else monService = ((JSONObject) receivedO);
+                JSONObject monService = ((JSONObject) receivedArray.get(0));
 
                 loadbalancerUrl = (String) ((JSONObject) monService.get("loadbalancer")).get("url");
                 currentUrl = (String) monService.get("url");
