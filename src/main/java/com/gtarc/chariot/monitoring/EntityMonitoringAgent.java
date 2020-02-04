@@ -202,7 +202,11 @@ public class EntityMonitoringAgent extends AbstractMethodExposingBean implements
                 // do loadbalancer stuff
                 if (this.isLoadBalancer) {
                     int serviceAmount = thisAgent.searchAllActions(new Action(actionNameGetDeviceID)).size();
-                    httpClient.updateLoadBalancer();
+                    try {
+                        httpClient.updateLoadBalancer();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     String printString = "Agent amount: " + this.agentAmount + " Service amount: " + serviceAmount;
                     if (lastPrint.isEmpty() || !lastPrint.equals(printString)) {

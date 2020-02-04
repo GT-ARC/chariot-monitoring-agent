@@ -39,8 +39,6 @@ public class HttpClient {
                 pushInitialData();
                 establishConnection();
             } else {
-
-
                 JSONObject monService = ((JSONObject) receivedArray.get(0));
 
                 loadbalancerUrl = (String) ((JSONObject) monService.get("loadbalancer")).get("url");
@@ -78,9 +76,9 @@ public class HttpClient {
     /**
      * Sets the current time in mills in the data base
      */
-    public void updateLoadBalancer() {
+    public void updateLoadBalancer() throws Exception {
         JSONObject timeStamp = new JSONObject();
-        timeStamp.put("timestamp", String.valueOf(new Date().getTime()));
+        timeStamp.put("timestamp", new Date().getTime());
 
         RequestBody body = RequestBody.create(JSON, timeStamp.toJSONString());
 
@@ -88,8 +86,10 @@ public class HttpClient {
                 .url(loadbalancerUrl)
                 .put(body)
                 .build();
-        try {
-            client.newCall(request).execute().close();
+
+        try (Response response = client.newCall(request).execute()) {
+            if(response.code() != 200)
+                throw new Exception("Loadbalancer Update Failed");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,14 +108,8 @@ public class HttpClient {
         mapObj.put("device_id", entityID);
         mapObj.put("agent_id", agentID);
 
-        JSONArray mappings = new JSONArray();
-        mappings.add(mapObj);
 
-        JSONObject reqObj = new JSONObject();
-        reqObj.put("mappings", mappings);
-
-
-        RequestBody body = RequestBody.create(JSON, reqObj.toJSONString());
+        RequestBody body = RequestBody.create(JSON, mapObj.toJSONString());
 
         Request request = new Request.Builder()
                 .url(mappingsURL)
