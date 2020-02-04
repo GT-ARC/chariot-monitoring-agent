@@ -15,6 +15,7 @@ public class HttpClient {
     private static String loadbalancerUrl = "";
     private static String mappingsURL = "";
     private static final String startUrl = "http://chariot-km.dai-lab.de:8080/v1/monitoringservice/";
+    private static String addUrl = "";
     private static final String postfix = "?format=json";
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -46,6 +47,9 @@ public class HttpClient {
 
                 JSONObject mapping = ((JSONObject) monService.get("agentlist"));
                 mappingsURL = (String) mapping.get("url");
+                int secondLastSlash = mappingsURL.substring(0, mappingsURL.length() - 1).lastIndexOf("/");
+                addUrl = mappingsURL.substring(0, secondLastSlash+1);
+
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -112,7 +116,7 @@ public class HttpClient {
         RequestBody body = RequestBody.create(JSON, mapObj.toJSONString());
 
         Request request = new Request.Builder()
-                .url(mappingsURL)
+                .url(addUrl)
                 .put(body)
                 .build();
 
@@ -122,7 +126,7 @@ public class HttpClient {
 
             JSONObject jsonObject = (JSONObject) parser.parse(response.body().string());
 
-            JSONArray recMappings = (JSONArray) jsonObject.get("mappings");
+            JSONArray recMappings = (JSONArray) ((JSONObject) jsonObject.get("agentlist")).get("mappings");
             for (Object recMaps : recMappings) {
                 JSONObject recMap = (JSONObject) recMaps;
                 if (recMap.get("agent_id").toString().equals(agentID)) {
@@ -134,7 +138,7 @@ public class HttpClient {
         return retUrl;
     }
 
-    public void removeAllEntities() {
+    public void removeAllEntities() throws Exception {
         Request request = new Request.Builder()
                 .url(mappingsURL)
                 .get()
@@ -142,6 +146,9 @@ public class HttpClient {
 
         JSONParser parser = new JSONParser();
         try (Response response = client.newCall(request).execute()) {
+
+            if (response.code() != 200)
+                throw new Exception("Couldn't do kms request for entities: " + response.body().string());
 
             JSONObject mapping = (JSONObject) parser.parse(response.body().string());
             JSONArray jsonArray = (JSONArray) mapping.get("mappings");
