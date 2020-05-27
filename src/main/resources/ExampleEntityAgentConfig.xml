@@ -13,7 +13,7 @@
                 <ref bean="ExampleDeviceAgent" />
             </list>
         </property>
-        <!-- <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot" /> -->
+         <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot" />
     </bean>
 
     <bean name="ExampleDeviceAgent" parent="NonBlockingAgent" scope="prototype">
