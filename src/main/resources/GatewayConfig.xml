@@ -13,6 +13,7 @@
                 <ref bean="ChariotDirectory" />
             </list>
         </property>
+        <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot"/>
     </bean>
 
     <bean name="ChariotStaticGatewayBroker" class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQBroker" scope="prototype" lazy-init="true">
