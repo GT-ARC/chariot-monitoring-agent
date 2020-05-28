@@ -8,6 +8,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class HttpClient {
 
@@ -21,13 +22,15 @@ public class HttpClient {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType TEXT = MediaType.parse("text; charset=utf-8");
 
-    private OkHttpClient client = new OkHttpClient();
-
     public void establishConnection() throws Exception {
         Request request = new Request.Builder()
                 .url(startUrl + postfix)
                 .get()
                 .build();
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();;
 
         try (Response response = client.newCall(request).execute()) {
             JSONParser parser = new JSONParser();
@@ -74,6 +77,10 @@ public class HttpClient {
                 .post(body)
                 .build();
 
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();;
+
         client.newCall(request).execute().close();
     }
 
@@ -89,6 +96,11 @@ public class HttpClient {
         Request request = new Request.Builder()
                 .url(loadbalancerUrl)
                 .put(body)
+                .build();
+
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -122,6 +134,11 @@ public class HttpClient {
 
         JSONParser parser = new JSONParser();
         String retUrl = null;
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
         try (Response response = client.newCall(request).execute()) {
 
             JSONObject jsonObject = (JSONObject) parser.parse(response.body().string());
@@ -142,6 +159,10 @@ public class HttpClient {
         Request request = new Request.Builder()
                 .url(mappingsURL)
                 .get()
+                .build();
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
 
         JSONParser parser = new JSONParser();
@@ -168,6 +189,11 @@ public class HttpClient {
         Request request = new Request.Builder()
                 .url(deviceUrl).delete().build();
         String responseString;
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
         try (Response response = client.newCall(request).execute()) {
             responseString = response.body().string();
         }
@@ -181,6 +207,11 @@ public class HttpClient {
                 .build();
         JSONParser parser = new JSONParser();
         JSONObject receivedObj;
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
         try (Response response = client.newCall(request).execute()) {
              receivedObj = (JSONObject) parser.parse(response.body().string());
         }
