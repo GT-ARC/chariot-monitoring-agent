@@ -26,7 +26,7 @@
     </bean>
 
     <bean name="ChariotStaticGatewayConnector" class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQTransportConnector" scope="prototype" lazy-init="true">
-        <property name="networkURI" value="static:(failover:(tcp://10.0.2.88:45678))" />
+        <property name="networkURI" value="static:(failover:(tcp://127.0.0.1:45678))" />
         <property name="duplex" value="true" />
         <property name="networkTTL" value="255" />
         <property name="transportURI" value="tcp://0.0.0.0:0" />

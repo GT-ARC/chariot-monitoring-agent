@@ -5,14 +5,9 @@
 
     <import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
     <import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
-
-    <bean name="MonitoringNode" parent="NodeWithJMX" scope="prototype">
-        <property name="agentNodeBeans">
-            <list>
-                <ref bean="ChariotStaticGatewayBroker" />
-                <ref bean="ChariotDirectory" />
-            </list>
-        </property>
+    <import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
+    <import resource="classpath:GatewayConfig.xml"/>
+    <bean name="MonitoringNode" parent="GatewayNode" scope="prototype">
         <property name="agents">
             <list>
                 <ref bean="MonitoringAgent" />
@@ -20,29 +15,6 @@
         </property>
 <!--        <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot"/>-->
     </bean>
-
-
-    <bean name="ChariotStaticGatewayBroker" class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQBroker" scope="prototype" lazy-init="true">
-        <property name="persistent" value="false" />
-        <property name="connectors">
-            <set>
-                <ref bean="ChariotStaticGatewayConnector" />
-            </set>
-        </property>
-    </bean>
-
-    <bean name="ChariotStaticGatewayConnector" class="de.dailab.jiactng.agentcore.comm.broker.ActiveMQTransportConnector" scope="prototype" lazy-init="true">
-        <property name="networkURI" value="static:(failover:(tcp://10.0.2.88:45678))" />
-        <property name="duplex" value="true" />
-        <property name="networkTTL" value="255" />
-        <property name="transportURI" value="tcp://0.0.0.0:0" />
-    </bean>
-
-    <bean name="ChariotDirectory" class="de.dailab.jiactng.agentcore.directory.DirectoryAgentNodeBean" scope="prototype" lazy-init="true">
-            <property name="messageTransport">
-                <ref bean="StandardJMSMessageTransport" />
-            </property>
-        </bean>
 
     <bean name="MonitoringAgent" parent="NonBlockingAgent" scope="prototype">
         <property name="agentBeans">
