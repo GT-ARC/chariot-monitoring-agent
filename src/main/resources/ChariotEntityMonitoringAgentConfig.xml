@@ -5,21 +5,15 @@
 
     <import resource="classpath:de/dailab/jiactng/agentcore/conf/AgentNode.xml" />
     <import resource="classpath:de/dailab/jiactng/agentcore/conf/Agent.xml" />
-    <import resource="classpath:GatewayConfig.xml" />
-
+    <import resource="classpath:GatewayConfig.xml"/>
+    
     <bean name="MonitoringNode" parent="GatewayNode" scope="prototype">
-        <property name="agentNodeBeans">
-            <list>
-                <ref bean="ChariotStaticGatewayBroker" />
-                <ref bean="ChariotDirectory" />
-            </list>
-        </property>
         <property name="agents">
             <list>
                 <ref bean="MonitoringAgent" />
             </list>
         </property>
-         <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot" />
+<!--        <property name="overwriteDiscoveryURI" value="smartmulticast://default?group=chariot"/>-->
     </bean>
 
     <bean name="MonitoringAgent" parent="NonBlockingAgent" scope="prototype">
@@ -41,3 +35,4 @@
     </bean>
 
 </beans>
+
