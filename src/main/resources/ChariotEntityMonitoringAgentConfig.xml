@@ -26,6 +26,7 @@
 
 
     <bean name="MonitoringAgentBean" class="com.gtarc.chariot.monitoring.EntityMonitoringAgent">
+        <property name="kmsURL" value="http://localhost:8080/v1"/>
         <property name="executionInterval" value="1000" />
         <property name="servicesPerAgent" value="10" />
         <property name="availabilityInterval" value="10000" />

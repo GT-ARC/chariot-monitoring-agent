@@ -1,5 +1,6 @@
 package com.gtarc.chariot.util;
 
+import com.gtarc.chariot.monitoring.EntityMonitoringAgent;
 import okhttp3.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,7 +16,7 @@ public class HttpClient {
     private static String currentUrl = "";
     private static String loadbalancerUrl = "";
     private static String mappingsURL = "";
-    private static final String startUrl = "http://localhost:8080/v1/monitoringservice/";
+    private static final String endpoint = "/monitoringservice/";
     private static String addUrl = "";
     private static final String postfix = "?format=json";
 
@@ -24,7 +25,7 @@ public class HttpClient {
 
     public void establishConnection() throws Exception {
         Request request = new Request.Builder()
-                .url(startUrl + postfix)
+                .url(EntityMonitoringAgent.kmsURL + endpoint + postfix)
                 .get()
                 .build();
 
@@ -73,7 +74,7 @@ public class HttpClient {
         RequestBody body = RequestBody.create(JSON, obj.toJSONString());
 
         Request request = new Request.Builder()
-                .url(startUrl + postfix)
+                .url(EntityMonitoringAgent.kmsURL + endpoint + postfix)
                 .post(body)
                 .build();
 

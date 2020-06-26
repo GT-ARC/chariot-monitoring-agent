@@ -41,6 +41,15 @@ public class EntityMonitoringAgent extends AbstractMethodExposingBean implements
     private ArrayList<String> timeOutSendFailed = new ArrayList<>();
 
     private static final String actionNameGetDeviceID = "com.gtarc.chariot.EntityMonitoringExposingBean#getEntityID";
+    public static String kmsURL;
+
+    public void setKmsURL(String kmsURL) {
+        EntityMonitoringAgent.kmsURL = kmsURL;
+    }
+
+    public String getKmsURL() {
+        return kmsURL;
+    }
 
     // Loadbalancer stuff END
 
