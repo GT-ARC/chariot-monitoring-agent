@@ -20,7 +20,6 @@ MA can be easily started by executing the `startMonitoringAgent`,  which builds 
 
 As the execution of MA requires Gateway Agent (GA), please look at the GA and be sure it is started./ 
 
-
 ## Contacts
 
 The following persons can answer your questions: 
